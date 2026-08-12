@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>资料室 - 回声留言板</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>回声留言板</h1>
+            <div class="subtitle">ECHO GUESTBOOK · 1999</div>
+        </div>
+
+        <div class="main">
+            <div class="sidebar">
+                <a href="index.html" class="nav-item">首 页</a>
+                <a href="guestbook.html" class="nav-item">留言簿</a>
+                <a href="album.html" class="nav-item" id="nav-album">旧相册</a>
+                <a href="chatroom.html" class="nav-item" id="nav-chatroom">聊天室</a>
+                <a href="reference.html" class="nav-item active">资料室</a>
+                <a href="#" class="nav-item" id="nav-leave">离 开</a>
+            </div>
+
+            <div class="content">
+                <h2>班级资料存档</h2>
+
+                <div class="doc-item">
+                    <div class="doc-title">高三（2）班课程表</div>
+                    <div class="doc-content">
+                        星期一：语文 数学 英语 物理<br>
+                        星期二：数学 英语 化学 体育<br>
+                        星期三：美术 语文 物理 历史<br>
+                        星期四：计算机 数学 英语 化学<br>
+                        星期五：音乐 语文 物理 班会
+                    </div>
+                    <div class="faint-text" style="margin-top:10px;">
+                        备注：她的画里总出现同一个数字。
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <div class="doc-title">机房使用记录（12月）</div>
+                    <div class="doc-content">
+                        12.28 班级统一上机课<br>
+                        12.29 计算机兴趣小组<br>
+                        12.30 教师使用<br>
+                        12.31 无登记记录
+                    </div>
+                    <div class="faint-text" style="margin-top:10px;">
+                        （31日晚机房门是锁着的，但有人听见打字声）
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <div class="doc-title">班级公告</div>
+                    <div class="doc-content">
+                        元旦晚会定于31日晚7点在阶梯教室举行<br>
+                        请各位同学准时参加<br>
+                        晚会结束后统一放假
+                    </div>
+                </div>
+
+                <div class="faint-text" style="margin-top:30px; text-align:center;">
+                    --- 文档加载完毕 ---
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>服务器时间：<span id="server-time">1999-12-31 23:59:59</span></div>
+            <div>您是第 <span id="visitor-count">404</span> 位访客</div>
+            <div class="warning blink">请勿回复</div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        function initPageEvents() {
+            const leaveBtn = document.getElementById('nav-leave');
+            if (leaveBtn) {
+                leaveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleLeave();
+                });
+            }
+        }
+        initPageEvents();
+    </script>
+</body>
+</html>

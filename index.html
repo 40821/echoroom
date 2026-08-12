@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>回声留言板</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>回声留言板</h1>
+            <div class="subtitle">ECHO GUESTBOOK · 1999</div>
+        </div>
+
+        <div class="main">
+            <div class="sidebar">
+                <a href="index.html" class="nav-item active">首 页</a>
+                <a href="guestbook.html" class="nav-item">留言簿</a>
+                <a href="album.html" class="nav-item" id="nav-album">旧相册</a>
+                <a href="chatroom.html" class="nav-item" id="nav-chatroom">聊天室</a>
+                <a href="reference.html" class="nav-item">资料室</a>
+                <a href="#" class="nav-item" id="nav-leave">离 开</a>
+            </div>
+
+            <div class="content">
+                <div class="eye-icon blink" onclick="eyeClick()">●</div>
+                <h2>欢迎你，未注册访客</h2>
+                
+                <p style="margin-bottom:20px;">
+                    欢迎来到高三（2）班班级留言板。<br>
+                    在这里你可以浏览留言、查看班级相册、进入聊天室交流。
+                </p>
+
+                <div style="margin:30px 0; padding:15px; border:1px dashed #6B538E; background:#1A0E2B;">
+                    <p style="color:#A85252; font-size:13px;">
+                        ⚠ 重要警告：<br>
+                        请勿回复陌生留言。<br>
+                        请勿频繁刷新页面。<br>
+                        请勿在午夜零点后关闭浏览器。
+                    </p>
+                </div>
+
+                <p style="color:#8B7AA8; font-size:12px; margin-top:40px;">
+                    本站建于1999年10月 · 临州三中高三（2）班制作
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>服务器时间：<span id="server-time">1999-12-31 23:59:59</span></div>
+            <div>您是第 <span id="visitor-count">404</span> 位访客</div>
+            <div class="warning blink">请勿回复</div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        function eyeClick() {
+            showModal('', '她知道你来了。');
+        }
+
+        // 首页自动标记已访问
+        window.addEventListener('load', () => {
+            // 标题栏彩蛋
+            let titleIndex = 0;
+            const titles = ['回声留言板', '回声留言板 - 7', '回声留言板 - 11', '回声留言板 - 17'];
+            setInterval(() => {
+                titleIndex = (titleIndex + 1) % titles.length;
+                document.title = titles[titleIndex];
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>memory.html</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #000;
+            overflow: hidden;
+        }
+        .memory-container {
+            width: min(92vw, 1100px);
+            margin: clamp(24px, 6vh, 72px) auto;
+            text-align: center;
+            color: #C9B87E;
+            font-family: "SimSun", serif;
+        }
+        .video-frame {
+            width: min(100%, 960px);
+            aspect-ratio: 4 / 3;
+            height: auto;
+            background: radial-gradient(circle at center, #17131f 0%, #09070d 72%, #000 100%);
+            margin: 0 auto 28px;
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            box-shadow: 0 0 28px rgba(0, 0, 0, 0.8);
+        }
+        .video-frame::before,
+        .video-frame::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .video-frame::before {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0) 18%, rgba(0,0,0,0.18) 52%, rgba(255,255,255,0.03));
+            mix-blend-mode: screen;
+            opacity: 0.45;
+        }
+        .video-frame::after {
+            background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 100% 4px;
+            opacity: 0.18;
+        }
+        .frame-shake {
+            animation: frameShake 2.8s infinite;
+        }
+        @keyframes frameShake {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-1px, 1px); }
+            40% { transform: translate(1px, -1px); }
+            60% { transform: translate(1px, 1px); }
+            80% { transform: translate(-1px, -1px); }
+        }
+        .video-text {
+            position: absolute;
+            bottom: 34px;
+            left: 0;
+            right: 0;
+            color: #ddd;
+            font-size: 15px;
+            text-align: center;
+            line-height: 1.8;
+            padding: 0 40px;
+            white-space: pre-line;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 0.85);
+        }
+        .typewriter-line {
+            display: inline-block;
+            border-right: 2px solid rgba(212, 175, 55, 0.8);
+            padding-right: 2px;
+            animation: caretBlink 0.8s steps(1) infinite;
+        }
+        @keyframes caretBlink {
+            50% { border-right-color: transparent; }
+        }
+        .time-update {
+            margin-top: 24px;
+            font-size: 16px;
+            color: #D4AF37;
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .time-update.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .ending-note {
+            margin-top: 14px;
+            color: #D8CEB0;
+            font-size: 15px;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .ending-note.show {
+            opacity: 1;
+        }
+        .glow-fade {
+            animation: glowFade 1.4s ease-in-out infinite alternate;
+        }
+        @keyframes glowFade {
+            from { filter: brightness(0.92); }
+            to { filter: brightness(1.08); }
+        }
+        @media (max-width: 760px) {
+            .video-text {
+                padding: 0 18px;
+                font-size: 13px;
+                bottom: 26px;
+            }
+            .time-update,
+            .ending-note {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="memory-container">
+        <div class="video-frame frame-shake glow-fade" id="video-frame">
+            <div id="loading-text" style="font-size:12px;">正在加载记忆片段...</div>
+            <div class="video-text" id="video-text" style="display:none;"></div>
+        </div>
+
+        <div class="time-update" id="time-update">
+            服务器时间已更新<br>
+            1999-12-31 23:59:59 → 2000-01-01 00:00:00
+        </div>
+        <div class="ending-note" id="ending-note">
+            已解锁“晚秋的回忆”结局
+        </div>
+
+        <button class="btn" id="back-btn" style="display:none; margin-top:34px;" onclick="goBack()">返回留言板</button>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        const lines = [
+            '旧机房里，一盏昏黄的灯亮着。',
+            '林晚秋坐在电脑前，手指在键盘上慢慢敲击。',
+            '屏幕上显示着留言板的编辑框。',
+            '\"如果你看到我，请不要害怕。',
+            '她身后的阴影里，缓缓站起一个黑色的人影。',
+            '人影停在她身后，一动不动。',
+            '她没有回头。',
+            '只是继续在输入框里，慢慢地写，',
+            '\"如果你看到我，请不要害怕。',
+            '\"我只是想让有人知道，',
+            '\"我曾经来过这里。',
+            '画面渐渐暗了下去。'
+        ];
+
+        let index = 0;
+        const textEl = document.getElementById('video-text');
+        const frame = document.getElementById('video-frame');
+        const loadingText = document.getElementById('loading-text');
+        const timeUpdate = document.getElementById('time-update');
+        const endingNote = document.getElementById('ending-note');
+
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+        async function typeLine(line) {
+            textEl.innerHTML = '';
+            const wrapper = document.createElement('div');
+            wrapper.className = 'typewriter-line';
+            textEl.appendChild(wrapper);
+            for (let i = 0; i < line.length; i++) {
+                wrapper.textContent = line.slice(0, i + 1);
+                await sleep(38);
+            }
+            wrapper.classList.remove('typewriter-line');
+        }
+
+        async function playLine() {
+            if (index >= lines.length) {
+                await sleep(900);
+                showEnding();
+                return;
+            }
+            await typeLine(lines[index]);
+            index++;
+            await sleep(1100);
+            playLine();
+        }
+
+        function showEnding() {
+            timeUpdate.classList.add('show');
+            endingNote.classList.add('show');
+            document.getElementById('back-btn').style.display = 'inline-block';
+        }
+
+        function goBack() {
+            location.href = 'guestbook.html';
+        }
+
+        setTimeout(() => {
+            loadingText.style.display = 'none';
+            textEl.style.display = 'block';
+            playLine();
+        }, 1200);
+    </script>
+</body>
+</html>
