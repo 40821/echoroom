@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>&#26087;&#30456;&#20876; - &#22238;&#22768;&#30041;&#35328;&#26495;</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>&#22238;&#22768;&#30041;&#35328;&#26495;</h1>
+            <div class="subtitle">ECHO GUESTBOOK &middot; 1999</div>
+        </div>
+
+        <div class="main">
+            <div class="sidebar">
+                <a href="index.html" class="nav-item">&#39318;&#39029;</a>
+                <a href="guestbook.html" class="nav-item">&#30041;&#35328;&#31807;</a>
+                <a href="album.html" class="nav-item active">&#26087;&#30456;&#20876;</a>
+                <a href="chatroom.html" class="nav-item" id="nav-chatroom">&#32842;&#22825;&#23460;</a>
+                <a href="reference.html" class="nav-item">&#36164;&#26009;&#23460;</a>
+                <a href="#" class="nav-item" id="nav-leave">&#31163;&#24320;</a>
+            </div>
+
+            <div class="content">
+                <h2>&#29677;&#32423;&#30456;&#20876;</h2>
+
+                <div id="album-lock" class="hidden">
+                    <p style="margin-bottom:15px;">&#31532;&#19971;&#24352;&#29031;&#29255;&#24050;&#21152;&#23494;&#65292;&#35831;&#36755;&#20837;&#35299;&#38145;&#23494;&#30721;&#65306;</p>
+                    <p style="color:#8B7AA8; font-size:12px; margin-bottom:10px;">&#25552;&#31034;&#65306;&#25105;&#31532;&#19968;&#27425;&#36867;&#35838;&#26102;&#65292;&#21435;&#20102;&#21738;&#37324;</p>
+                    <input type="text" class="input" id="album-password" placeholder="&#36755;&#20837;&#33521;&#25991;&#21333;&#35789;">
+                    <button class="btn" onclick="checkAlbumPassword()">&#35299;&#38145;</button>
+                </div>
+
+                <div class="album-grid">
+                    <div class="album-item">
+                        <button type="button" class="album-img album-photo" onclick="openPhoto('img_room_07.png', 'img_room_07.jpg')"><img src="img_room_07.png" alt="img_room_07.jpg"></button>
+                        <div class="album-filename">img_room_07.jpg</div>
+                    </div>
+
+                    <div class="album-item">
+                        <button type="button" class="album-img album-photo" onclick="openPhoto('img_corridor_12.png', 'img_corridor_12.jpg')"><img src="img_corridor_12.png" alt="img_corridor_12.jpg"></button>
+                        <div class="album-filename">img_corridor_12.jpg</div>
+                    </div>
+
+                    <div class="album-item" id="item-rooftop">
+                        <button type="button" class="album-img album-photo" id="img-rooftop" onclick="openPhoto('img_rooftop_04.jpg', 'img_rooftop_04.jpg')"><img src="img_rooftop_04.jpg" alt="img_rooftop_04.jpg"></button>
+                        <div class="album-filename">img_rooftop_04.jpg</div>
+                    </div>
+
+                    <div class="album-item">
+                        <button type="button" class="album-img album-photo" onclick="openPhoto('img_art_19.png', 'img_art_19.jpg')"><img src="img_art_19.png" alt="img_art_19.jpg"><span style="position:absolute; bottom:5px; right:8px; font-size:10px; color:#D4AF37;"></span></button>
+                        <div class="album-filename">img_art_19.jpg</div>
+                    </div>
+
+                    <div class="album-item">
+                        <button type="button" class="album-img album-photo" onclick="openPhoto('img_gate_24.png', 'img_gate_24.jpg')"><img src="img_gate_24.png" alt="img_gate_24.jpg"></button>
+                        <div class="album-filename">img_gate_24.jpg</div>
+                    </div>
+
+                    <div class="album-item">
+                        <button type="button" class="album-img album-photo" onclick="openPhoto('img_seat_unknown.png', 'img_seat_unknown.jpg')"><img src="img_seat_unknown.png" alt="img_seat_unknown.jpg"></button>
+                        <div class="album-filename">img_computerroom_unknown.jpg</div>
+                    </div>
+
+                    <div class="album-item hidden" id="item-hidden">
+                        <button type="button" class="album-img locked album-photo" id="img-hidden" onclick="openPhoto('img_seat_07.png', 'img_seat_07.jpg')">???</button>
+                        <div class="album-filename">img_??????.jpg</div>
+                    </div>
+                </div>
+
+                <div id="hidden-clue" class="hidden" style="margin-top:30px; padding:15px; border:1px dashed #6B538E; background:#1A0E2B;">
+                    <p style="color:#D4AF37; margin-bottom:10px;">&#8220;&#29031;&#29255;&#32972;&#38754;&#30340;&#23383;&#36857;&#8221;</p>
+                    <p style="color:#D8CEB0;">&#32842;&#22825;&#23460;&#23494;&#30721;&#65306;<br>&#25105;&#30340;&#24231;&#20301;&#21495; + &#25105;&#26368;&#21916;&#27426;&#30340;&#25968;&#23383;</p>
+                </div>
+
+                <div id="chat-password-box" class="hidden" style="margin-top:20px;">
+                    <p style="margin-bottom:8px;">&#21069;&#24448;&#32842;&#22825;&#23460;&#65306;</p>
+                    <input type="text" class="input" id="chat-pwd" placeholder="&#36755;&#20837;4&#20301;&#25968;&#23383;&#23494;&#30721;">
+                    <button class="btn" onclick="checkChatPassword()">&#36827;&#20837;&#32842;&#22825;&#23460;</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>&#26381;&#21153;&#22120;&#26102;&#38388;&#65306;<span id="server-time">1999-12-31 23:59:59</span></div>
+            <div>&#24744;&#26159;&#31532; <span id="visitor-count">404</span> &#20301;&#35775;&#23458;</div>
+            <div class="warning blink">&#35831;&#21247;&#22238;&#22797;</div>
+        </div>
+    </div>
+
+    <div id="photo-modal" class="photo-modal hidden" onclick="closePhoto()">
+        <div class="photo-modal-inner" onclick="event.stopPropagation()">
+            <button type="button" class="photo-close" onclick="closePhoto()">&times;</button>
+            <img id="photo-modal-img" alt="">
+            <div id="photo-modal-caption" class="photo-caption"></div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        function initPageEvents() {
+            superInit();
+            document.getElementById('album-lock').classList.remove('hidden');
+
+            if (wasPageReloaded() && !GameState.albumRefreshed) {
+                GameState.albumRefreshed = true;
+                GameState.save();
+            }
+
+            if (GameState.albumRefreshed) {
+                applyRooftopRefresh();
+            }
+
+            if (localStorage.getItem('albumUnlocked') === 'true') {
+                showHiddenImage();
+            }
+        }
+
+        function superInit() {
+            const leaveBtn = document.getElementById('nav-leave');
+            if (leaveBtn) {
+                leaveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleLeave();
+                });
+            }
+        }
+
+
+        function wasPageReloaded() {
+            const entries = performance.getEntriesByType && performance.getEntriesByType('navigation');
+            if (entries && entries.length > 0) {
+                return entries[0].type === 'reload';
+            }
+            return performance.navigation && performance.navigation.type === 1;
+        }
+
+        function applyRooftopRefresh() {
+            const rooftop = document.getElementById('img-rooftop');
+            rooftop.classList.add('glitch-photo');
+            rooftop.innerHTML = '<img src="img_rooftop_04_refreshed.jpg" alt="img_rooftop_04.jpg">';
+            rooftop.onclick = () => openPhoto('img_rooftop_04_refreshed.jpg', 'img_rooftop_04.jpg');
+        }
+        function checkAlbumPassword() {
+            const input = document.getElementById('album-password').value.trim().toLowerCase();
+
+            if (checkBadEnding(input)) return;
+
+            if (input === 'rooftop') {
+                localStorage.setItem('albumUnlocked', 'true');
+                showHiddenImage();
+            } else {
+                showModal('\u5bc6\u7801\u9519\u8bef', '\u76f8\u518c\u5bc6\u7801\u4e0d\u6b63\u786e\u3002');
+            }
+        }
+
+        function showHiddenImage() {
+            const hiddenItem = document.getElementById('item-hidden');
+            hiddenItem.classList.remove('hidden');
+
+            const hiddenImg = hiddenItem.querySelector('.album-img');
+            hiddenImg.classList.remove('locked');
+            hiddenImg.innerHTML = '<img src="img_seat_07.png" alt="img_seat_07.jpg">';
+            hiddenItem.querySelector('.album-filename').textContent = 'img_seat_07.jpg';
+
+            document.getElementById('hidden-clue').classList.remove('hidden');
+            document.getElementById('chat-password-box').classList.remove('hidden');
+            document.getElementById('album-lock').classList.add('hidden');
+        }
+
+        function checkChatPassword() {
+            const input = document.getElementById('chat-pwd').value.trim();
+
+            if (checkBadEnding(input)) return;
+
+            if (input === '0711') {
+                GameState.unlockedChatroom = true;
+                GameState.save();
+                showModal('\u5bc6\u7801\u6b63\u786e', '\u804a\u5929\u5ba4\u5df2\u89e3\u9501\u3002', [
+                    {
+                        text: '\u8fdb\u5165',
+                        action: () => { location.href = 'chatroom.html'; }
+                    }
+                ]);
+            } else {
+                showModal('\u5bc6\u7801\u9519\u8bef', '\u804a\u5929\u5ba4\u5bc6\u7801\u4e0d\u6b63\u786e\u3002');
+            }
+        }
+
+        function openPhoto(src, caption) {
+            const modal = document.getElementById('photo-modal');
+            document.getElementById('photo-modal-img').src = src;
+            document.getElementById('photo-modal-img').alt = caption;
+            document.getElementById('photo-modal-caption').textContent = caption;
+            modal.classList.remove('hidden');
+        }
+
+        function closePhoto() {
+            document.getElementById('photo-modal').classList.add('hidden');
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closePhoto();
+            }
+        });
+    </script>
+</body>
+</html>

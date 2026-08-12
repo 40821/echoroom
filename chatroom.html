@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室 - 回声留言板</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>回声留言板</h1>
+            <div class="subtitle">ECHO GUESTBOOK · 1999</div>
+        </div>
+
+        <div class="main">
+            <div class="sidebar">
+                <a href="index.html" class="nav-item">首 页</a>
+                <a href="guestbook.html" class="nav-item">留言簿</a>
+                <a href="album.html" class="nav-item">旧相册</a>
+                <a href="chatroom.html" class="nav-item active">聊天室</a>
+                <a href="reference.html" class="nav-item">资料室</a>
+                <a href="#" class="nav-item" id="nav-leave">离 开</a>
+            </div>
+
+            <div class="content">
+                <h2>聊天室：高三（2）班</h2>
+                
+                <div class="user-list">
+                    <span>在线用户：</span>
+                    <span>班长</span>
+                    <span>小雯</span>
+                    <span>阿哲</span>
+                    <span>老师</span>
+                    <span style="color:#D4AF37;">晚秋</span>
+                    <span style="color:#7EB8D4;">访客(你)</span>
+                    <span class="user-offline">管理员</span>
+                </div>
+
+                <div class="chat-box" id="chat-box">
+                    <div class="chat-system">欢迎来到高三（2）班聊天室。</div>
+                    <div><span class="chat-user">班长：</span>晚秋今天没来上课。</div>
+                    <div><span class="chat-user">小雯：</span>她昨天就请假了。</div>
+                    <div><span class="chat-user">阿哲：</span>我昨晚在机房看见她了。</div>
+                    <div><span class="chat-user">老师：</span>大家不要乱传。</div>
+                    <div><span class="chat-user">小雯：</span>可是她的座位是空的。</div>
+                    <div><span class="chat-user">班长：</span>她可能只是不想来。</div>
+                    <div><span class="chat-user">管理员：</span>有人违规刷新页面。</div>
+                    <div><span class="chat-user">管理员：</span>访客，请不要发送私人消息。</div>
+                </div>
+
+                <div style="margin:10px 0; font-size:12px; color:#8B7AA8;">
+                    私聊对象：晚秋 
+                    <span id="private-status" style="color:#A85252;">（对方拒绝接收消息）</span>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" class="input" id="chat-input" placeholder="输入私聊内容...">
+                    <button class="btn" onclick="sendChat()">发送</button>
+                </div>
+
+                <div style="margin-top:15px; font-size:12px; color:#8B7AA8;">
+                    提示：公聊已禁言，仅可发送私聊
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>服务器时间：<span id="server-time">1999-12-31 23:59:59</span></div>
+            <div>您是第 <span id="visitor-count">404</span> 位访客</div>
+            <div class="warning blink">请勿回复</div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        let chatStep = 0; // 对话进度
+
+        function initPageEvents() {
+            superInit();
+            
+            // 输入闪烁效果
+            setInterval(() => {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    indicator.style.opacity = indicator.style.opacity === '0.3' ? '1' : '0.3';
+                }
+            }, 800);
+
+            // 自动滚动到底部
+            scrollChatBottom();
+        }
+
+        function superInit() {
+            const leaveBtn = document.getElementById('nav-leave');
+            if (leaveBtn) {
+                leaveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleLeave();
+                });
+            }
+        }
+
+        function scrollChatBottom() {
+            const box = document.getElementById('chat-box');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function appendChat(user, text, type = 'normal') {
+            const box = document.getElementById('chat-box');
+            const line = document.createElement('div');
+            
+            if (type === 'system') {
+                line.className = 'chat-system';
+                line.textContent = text;
+            } else if (type === 'self') {
+                line.innerHTML = `<span class="chat-self">你(对晚秋说)：</span>${text}`;
+            } else {
+                line.innerHTML = `<span class="chat-user">${user}：</span>${text}`;
+            }
+            
+            box.appendChild(line);
+            scrollChatBottom();
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // 检查坏结局
+            if (checkBadEnding(text)) return;
+
+            // 第一步：拒绝接收
+            if (chatStep === 0) {
+                appendChat('系统', '对方拒绝接收消息。', 'system');
+                input.value = '';
+                return;
+            }
+
+            appendChat('', text, 'self');
+            input.value = '';
+
+            // 对话分支
+            if (chatStep === 1) {
+                // 等待正确话术
+                if (text === '我看见你了') {
+                    setTimeout(() => {
+                        appendChat('晚秋', '你是谁？');
+                        chatStep = 2;
+                    }, 1500);
+                } else {
+                    setTimeout(() => {
+                        appendChat('系统', '对方没有回应。', 'system');
+                    }, 1000);
+                }
+            } else if (chatStep === 2) {
+                setTimeout(() => {
+                    appendChat('晚秋', '你可以帮我一个忙吗');
+                    chatStep = 3;
+                }, 1500);
+            } else if (chatStep === 3) {
+                setTimeout(() => {
+                    appendChat('晚秋', '请帮我删除最后一条留言。');
+                    GameState.knowsDeleteRequest = true;
+                    GameState.save();
+                    chatStep = 4;
+                    
+                    setTimeout(() => {
+                        appendChat('系统', '留言簿删除功能已开放。', 'system');
+                    }, 1000);
+                }, 1500);
+            } else if (chatStep >= 4) {
+                setTimeout(() => {
+                    appendChat('系统', '对方已停止输入。', 'system');
+                }, 1000);
+            }
+        }
+
+        // 3秒后解除第一步限制，允许尝试发送
+        setTimeout(() => {
+            chatStep = 1;
+            document.getElementById('private-status').textContent = '（可发送消息）';
+            document.getElementById('private-status').style.color = '#7EB8D4';
+        }, 3000);
+
+        // 回车发送
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChat();
+        });
+
+        initPageEvents();
+    </script>
+</body>
+</html>
