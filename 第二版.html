@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人声伴奏分离工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            color: #1d1d1f;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.95), transparent 25%),
+                radial-gradient(circle at 90% 5%, rgba(0, 122, 255, 0.25), transparent 28%),
+                radial-gradient(circle at 50% 90%, rgba(102, 126, 234, 0.25), transparent 28%),
+                linear-gradient(135deg, #fafafa 0%, #f0f4f8 45%, #e9ecf3 100%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 24px 16px 48px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #1d1d1f;
+        }
+
+        .header p {
+            margin-top: 8px;
+            color: #86868b;
+            font-size: 15px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.58);
+            backdrop-filter: blur(22px) saturate(150%);
+            -webkit-backdrop-filter: blur(22px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow:
+                0 18px 45px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(0, 122, 255, 0.35);
+            border-radius: 20px;
+            padding: 36px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.22s ease;
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #007aff;
+            background: rgba(0, 122, 255, 0.04);
+            transform: translateY(-1px);
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .upload-area p {
+            color: #1d1d1f;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .upload-area .hint {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #86868b;
+        }
+
+        .file-name {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #007aff;
+            font-weight: 600;
+        }
+
+        .status {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 204, 0, 0.18);
+            border: 1px solid rgba(255, 204, 0, 0.35);
+            color: #b58900;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .track-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 22px;
+        }
+
+        .track-card {
+            background: rgba(255, 255, 255, 0.62);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+        }
+
+        .track-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .track-title::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #007aff;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+        }
+
+        .track-card.accompaniment .track-title::before {
+            background: #34c759;
+            box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.15);
+        }
+
+        audio {
+            width: 100%;
+            height: 42px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #007aff, #0051d5);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+            box-shadow: 0 8px 18px rgba(0, 122, 255, 0.22);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(0, 122, 255, 0.28);
+        }
+
+        .btn:disabled {
+            background: #c7c7cc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: rgba(118, 118, 128, 0.12);
+            color: #1d1d1f;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(118, 118, 128, 0.18);
+        }
+
+        .tips {
+            margin-top: 22px;
+            padding: 18px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            color: #86868b;
+            line-height: 1.7;
+        }
+
+        .tips strong {
+            color: #1d1d1f;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(0, 122, 255, 0.12);
+            color: #007aff;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 640px) {
+            .track-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .glass-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>人声伴奏分离</h1>
+            <p>上传立体声音乐，快速分离人声与伴奏</p>
+        </div>
+
+        <div class="glass-card">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🎵</div>
+                <p>点击或拖拽上传音乐文件</p>
+                <p class="hint">支持 MP3、WAV、OGG，建议使用立体声文件</p>
+                <input type="file" id="fileInput" accept="audio/*">
+                <div class="file-name" id="fileName"></div>
+            </div>
+
+            <div class="status" id="status">正在处理音频，请稍候...</div>
+
+            <div class="track-grid">
+                <div class="track-card">
+                    <div class="track-title">人声轨道</div>
+                    <audio id="vocalAudio" controls></audio>
+                    <button class="btn btn-secondary" id="downloadVocal" disabled>下载人声</button>
+                </div>
+
+                <div class="track-card accompaniment">
+                    <div class="track-title">伴奏轨道</div>
+                    <audio id="accompAudio" controls></audio>
+                    <button class="btn btn-secondary" id="downloadAccomp" disabled>下载伴奏</button>
+                </div>
+            </div>
+
+            <div class="tips">
+                <p><strong>当前算法说明：</strong></p>
+                <p>本工具使用 <span class="badge">中心声道抵消</span> 算法。它适合处理标准立体声流行音乐，可将中央位置的人声与两侧伴奏做初步分离。</p>
+                <br>
+                <p><strong>为什么人声不够干净？</strong></p>
+                <ul style="padding-left: 16px; margin-top: 8px;">
+                    <li>底鼓、贝斯、钢琴等中央乐器会残留</li>
+                    <li>人声混响和空间效果会被保留</li>
+                    <li>单声道文件无法有效分离</li>
+                    <li>复杂混音、合唱、环绕声效果会降低质量</li>
+                </ul>
+                <br>
+                <p><strong>真正干净的人声建议：</strong></p>
+                <p>使用 Demucs、MDX-Net 或 Spleeter 等 AI 模型进行后端分离，效果会明显优于纯前端相位抵消算法。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById("uploadArea");
+        const fileInput = document.getElementById("fileInput");
+        const fileName = document.getElementById("fileName");
+        const status = document.getElementById("status");
+        const vocalAudio = document.getElementById("vocalAudio");
+        const accompAudio = document.getElementById("accompAudio");
+        const downloadVocal = document.getElementById("downloadVocal");
+        const downloadAccomp = document.getElementById("downloadAccomp");
+
+        let audioContext = null;
+        let originalName = "audio";
+
+        uploadArea.addEventListener("click", () => fileInput.click());
+
+        uploadArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadArea.classList.add("dragover");
+        });
+
+        uploadArea.addEventListener("dragleave", () => {
+            uploadArea.classList.remove("dragover");
+        });
+
+        uploadArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove("dragover");
+            if (e.dataTransfer.files[0]) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener("change", (e) => {
+            if (e.target.files[0]) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            originalName = file.name.replace(/\.[^/.]+$/, "");
+            fileName.textContent = file.name;
+            status.classList.add("show");
+            status.textContent = "正在处理音频，请稍候...";
+
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const arrayBuffer = e.target.result;
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    separateAudio(audioBuffer);
+                    status.classList.remove("show");
+                } catch (err) {
+                    status.textContent = "处理失败：" + err.message;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function separateAudio(buffer) {
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length;
+            const channels = buffer.numberOfChannels;
+
+            if (channels < 2) {
+                alert("请使用立体声文件，单声道文件无法有效分离");
+                status.classList.remove("show");
+                return;
+            }
+
+            const left = buffer.getChannelData(0);
+            const right = buffer.getChannelData(1);
+
+            const vocalBuffer = audioContext.createBuffer(2, length, sampleRate);
+            const accompBuffer = audioContext.createBuffer(2, length, sampleRate);
+
+            const vocalL = vocalBuffer.getChannelData(0);
+            const vocalR = vocalBuffer.getChannelData(1);
+            const accompL = accompBuffer.getChannelData(0);
+            const accompR = accompBuffer.getChannelData(1);
+
+            for (let i = 0; i < length; i++) {
+                const l = left[i];
+                const r = right[i];
+
+                const center = (l + r) * 0.5;
+                const side = (l - r) * 0.5;
+
+                vocalL[i] = center * 1.25;
+                vocalR[i] = center * 1.25;
+
+                accompL[i] = side * 1.5;
+                accompR[i] = -side * 1.5;
+            }
+
+            const vocalUrl = bufferToWaveUrl(vocalBuffer);
+            const accompUrl = bufferToWaveUrl(accompBuffer);
+
+            vocalAudio.src = vocalUrl;
+            accompAudio.src = accompUrl;
+
+            downloadVocal.disabled = false;
+            downloadAccomp.disabled = false;
+
+            downloadVocal.onclick = () => downloadAudio(vocalUrl, originalName + "_vocal.wav");
+            downloadAccomp.onclick = () => downloadAudio(accompUrl, originalName + "_accompaniment.wav");
+        }
+
+        function bufferToWaveUrl(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1;
+            const bitDepth = 16;
+
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+            const dataLength = buffer.length * blockAlign;
+            const bufferLength = 44 + dataLength;
+
+            const arrayBuffer = new ArrayBuffer(bufferLength);
+            const view = new DataView(arrayBuffer);
+
+            writeString(view, 0, "RIFF");
+            view.setUint32(4, 36 + dataLength, true);
+            writeString(view, 8, "WAVE");
+            writeString(view, 12, "fmt ");
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+            writeString(view, 36, "data");
+            view.setUint32(40, dataLength, true);
+
+            const channels = [];
+            for (let i = 0; i < numChannels; i++) {
+                channels.push(buffer.getChannelData(i));
+            }
+
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let ch = 0; ch < numChannels; ch++) {
+                    let sample = Math.max(-1, Math.min(1, channels[ch][i]));
+                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset, sample, true);
+                    offset += 2;
+                }
+            }
+
+            const blob = new Blob([arrayBuffer], { type: "audio/wav" });
+            return URL.createObjectURL(blob);
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        function downloadAudio(url, filename) {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            a.click();
+        }
+    </script>
+</body>
+</html>
