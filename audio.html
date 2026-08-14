@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人声伴奏分离工具</title>
+    <title>OULEI的伴奏分离工具</title>
     <style>
         * {
             margin: 0;
@@ -16,11 +16,25 @@
             min-height: 100vh;
             color: #1d1d1f;
             background:
-                radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.95), transparent 25%),
-                radial-gradient(circle at 90% 5%, rgba(0, 122, 255, 0.25), transparent 28%),
-                radial-gradient(circle at 50% 90%, rgba(102, 126, 234, 0.25), transparent 28%),
-                linear-gradient(135deg, #fafafa 0%, #f0f4f8 45%, #e9ecf3 100%);
+                radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.98), transparent 24%),
+                radial-gradient(circle at 82% 8%, rgba(0, 122, 255, 0.28), transparent 28%),
+                radial-gradient(circle at 18% 86%, rgba(52, 199, 89, 0.2), transparent 24%),
+                radial-gradient(circle at 82% 82%, rgba(255, 45, 85, 0.16), transparent 24%),
+                linear-gradient(145deg, #fbfcff 0%, #eef4fb 42%, #e9edf5 100%);
             background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(120deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0) 34%),
+                radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.72), transparent 32%);
+            opacity: 0.82;
+            mix-blend-mode: screen;
         }
 
         .container {
@@ -33,13 +47,17 @@
         .header {
             text-align: center;
             margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
             font-size: 34px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
+            font-weight: 760;
+            letter-spacing: 0;
             color: #1d1d1f;
+            line-height: 1.08;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68);
         }
 
         .header p {
@@ -49,32 +67,85 @@
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.58);
-            backdrop-filter: blur(22px) saturate(150%);
-            -webkit-backdrop-filter: blur(22px) saturate(150%);
-            border: 1px solid rgba(255, 255, 255, 0.72);
-            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.36)),
+                rgba(255, 255, 255, 0.42);
+            backdrop-filter: blur(34px) saturate(180%);
+            -webkit-backdrop-filter: blur(34px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            border-radius: 28px;
             padding: 24px;
             box-shadow:
-                0 18px 45px rgba(0, 0, 0, 0.08),
-                0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+                0 28px 70px rgba(31, 35, 48, 0.14),
+                0 10px 24px rgba(255, 255, 255, 0.42) inset,
+                0 1px 0 rgba(255, 255, 255, 0.86) inset;
+        }
+
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            border-radius: 27px;
+            pointer-events: none;
+            background:
+                linear-gradient(140deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.08) 38%, rgba(255, 255, 255, 0.34) 100%);
+            opacity: 0.72;
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            padding: 1px;
+        }
+
+        .glass-card::after {
+            content: "";
+            position: absolute;
+            top: -34%;
+            left: -18%;
+            width: 58%;
+            height: 58%;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.7), transparent 62%);
+            opacity: 0.55;
+            transform: rotate(-12deg);
+        }
+
+        .glass-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .upload-area {
-            border: 2px dashed rgba(0, 122, 255, 0.35);
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 22px;
             padding: 36px 20px;
             text-align: center;
             cursor: pointer;
-            transition: 0.22s ease;
-            background: rgba(255, 255, 255, 0.45);
+            transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.24)),
+                rgba(255, 255, 255, 0.34);
+            box-shadow:
+                0 10px 28px rgba(31, 35, 48, 0.08),
+                0 1px 0 rgba(255, 255, 255, 0.8) inset;
         }
 
         .upload-area:hover,
         .upload-area.dragover {
-            border-color: #007aff;
-            background: rgba(0, 122, 255, 0.04);
-            transform: translateY(-1px);
+            border-color: rgba(0, 122, 255, 0.42);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.68), rgba(245, 250, 255, 0.34)),
+                rgba(0, 122, 255, 0.06);
+            transform: translateY(-2px) scale(1.005);
+            box-shadow:
+                0 16px 34px rgba(0, 122, 255, 0.12),
+                0 1px 0 rgba(255, 255, 255, 0.9) inset;
+        }
+
+        .upload-area:active {
+            transform: scale(0.985);
         }
 
         .upload-area input {
@@ -107,17 +178,68 @@
 
         .status {
             margin-top: 18px;
-            padding: 14px 16px;
-            border-radius: 16px;
-            background: rgba(255, 204, 0, 0.18);
-            border: 1px solid rgba(255, 204, 0, 0.35);
-            color: #b58900;
+            padding: 14px;
+            border-radius: 18px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.3)),
+                rgba(255, 204, 0, 0.14);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            color: #8a6700;
             font-size: 14px;
             display: none;
+            box-shadow:
+                0 12px 30px rgba(31, 35, 48, 0.08),
+                0 1px 0 rgba(255, 255, 255, 0.82) inset;
         }
 
         .status.show {
             display: block;
+            animation: materialize 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .status.error .progress-shell {
+            display: none;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-weight: 650;
+        }
+
+        .progress-value {
+            min-width: 42px;
+            text-align: right;
+            color: #007aff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .progress-shell {
+            height: 9px;
+            margin-top: 12px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(118, 118, 128, 0.14);
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.72) inset,
+                0 8px 16px rgba(31, 35, 48, 0.06) inset;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background:
+                linear-gradient(90deg, rgba(0, 122, 255, 0.95), rgba(52, 199, 89, 0.88)),
+                #007aff;
+            box-shadow:
+                0 0 18px rgba(0, 122, 255, 0.32),
+                0 1px 0 rgba(255, 255, 255, 0.6) inset;
+            transition: width 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .track-grid {
@@ -128,13 +250,17 @@
         }
 
         .track-card {
-            background: rgba(255, 255, 255, 0.62);
-            backdrop-filter: blur(18px) saturate(140%);
-            -webkit-backdrop-filter: blur(18px) saturate(140%);
-            border: 1px solid rgba(255, 255, 255, 0.75);
-            border-radius: 20px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.25)),
+                rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(24px) saturate(170%);
+            -webkit-backdrop-filter: blur(24px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 22px;
             padding: 18px;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+            box-shadow:
+                0 14px 32px rgba(31, 35, 48, 0.08),
+                0 1px 0 rgba(255, 255, 255, 0.8) inset;
         }
 
         .track-title {
@@ -177,13 +303,17 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s ease;
+            transition: transform 120ms ease-out, box-shadow 180ms ease, background 180ms ease;
             box-shadow: 0 8px 18px rgba(0, 122, 255, 0.22);
         }
 
         .btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 12px 24px rgba(0, 122, 255, 0.28);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
         }
 
         .btn:disabled {
@@ -194,9 +324,14 @@
         }
 
         .btn-secondary {
-            background: rgba(118, 118, 128, 0.12);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.16)),
+                rgba(118, 118, 128, 0.12);
             color: #1d1d1f;
-            box-shadow: none;
+            border: 1px solid rgba(255, 255, 255, 0.58);
+            box-shadow:
+                0 8px 18px rgba(31, 35, 48, 0.06),
+                0 1px 0 rgba(255, 255, 255, 0.82) inset;
         }
 
         .btn-secondary:hover {
@@ -206,12 +341,17 @@
         .tips {
             margin-top: 22px;
             padding: 18px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 22px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.25)),
+                rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.72);
             font-size: 13px;
             color: #86868b;
             line-height: 1.7;
+            box-shadow: 0 10px 26px rgba(31, 35, 48, 0.06);
         }
 
         .tips strong {
@@ -227,6 +367,43 @@
             font-size: 12px;
             font-weight: 600;
             margin-right: 6px;
+        }
+
+        @keyframes materialize {
+            from {
+                opacity: 0;
+                transform: scale(0.985) translateY(-4px);
+                filter: blur(8px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .status.show {
+                animation: none;
+            }
+
+            .upload-area,
+            .btn,
+            .progress-bar {
+                transition: none;
+            }
+        }
+
+        @media (prefers-reduced-transparency: reduce) {
+            .glass-card,
+            .upload-area,
+            .status,
+            .track-card,
+            .tips {
+                background: rgba(255, 255, 255, 0.94);
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
         }
 
         @media (max-width: 640px) {
@@ -255,12 +432,20 @@
             <div class="upload-area" id="uploadArea">
                 <div class="upload-icon">🎵</div>
                 <p>点击或拖拽上传音乐文件</p>
-                <p class="hint">支持 MP3、WAV、OGG，建议使用立体声文件</p>
+                <p class="hint">支持 MP3、WAV、FLAC，建议使用立体声文件</p>
                 <input type="file" id="fileInput" accept="audio/*">
                 <div class="file-name" id="fileName"></div>
             </div>
 
-            <div class="status" id="status">正在处理音频，请稍候...</div>
+            <div class="status" id="status">
+                <div class="status-row">
+                    <span id="statusText">正在处理音频，请稍候...</span>
+                    <span class="progress-value" id="progressValue">0%</span>
+                </div>
+                <div class="progress-shell" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressShell">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
 
             <div class="track-grid">
                 <div class="track-card">
@@ -288,8 +473,6 @@
                     <li>复杂混音、合唱、环绕声效果会降低质量</li>
                 </ul>
                 <br>
-                <p><strong>真正干净的人声建议：</strong></p>
-                <p>使用 Demucs、MDX-Net 或 Spleeter 等 AI 模型进行后端分离，效果会明显优于纯前端相位抵消算法。</p>
             </div>
         </div>
     </div>
@@ -299,6 +482,10 @@
         const fileInput = document.getElementById("fileInput");
         const fileName = document.getElementById("fileName");
         const status = document.getElementById("status");
+        const statusText = document.getElementById("statusText");
+        const progressValue = document.getElementById("progressValue");
+        const progressShell = document.getElementById("progressShell");
+        const progressBar = document.getElementById("progressBar");
         const vocalAudio = document.getElementById("vocalAudio");
         const accompAudio = document.getElementById("accompAudio");
         const downloadVocal = document.getElementById("downloadVocal");
@@ -306,6 +493,7 @@
 
         let audioContext = null;
         let originalName = "audio";
+        const processingText = statusText.textContent;
 
         uploadArea.addEventListener("click", () => fileInput.click());
 
@@ -335,28 +523,40 @@
         function handleFile(file) {
             originalName = file.name.replace(/\.[^/.]+$/, "");
             fileName.textContent = file.name;
-            status.classList.add("show");
-            status.textContent = "正在处理音频，请稍候...";
+            setProcessingProgress(4);
+            downloadVocal.disabled = true;
+            downloadAccomp.disabled = true;
 
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
 
             const reader = new FileReader();
+            reader.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    setProcessingProgress(4 + Math.round((e.loaded / e.total) * 24));
+                }
+            };
             reader.onload = async (e) => {
                 try {
+                    setProcessingProgress(32);
                     const arrayBuffer = e.target.result;
                     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                    separateAudio(audioBuffer);
-                    status.classList.remove("show");
+                    setProcessingProgress(46);
+                    const separated = await separateAudio(audioBuffer);
+                    if (!separated) {
+                        return;
+                    }
+                    setProcessingProgress(100);
+                    window.setTimeout(() => status.classList.remove("show"), 520);
                 } catch (err) {
-                    status.textContent = "处理失败：" + err.message;
+                    showProcessingError("处理失败：" + err.message);
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function separateAudio(buffer) {
+        async function separateAudio(buffer) {
             const sampleRate = buffer.sampleRate;
             const length = buffer.length;
             const channels = buffer.numberOfChannels;
@@ -364,7 +564,7 @@
             if (channels < 2) {
                 alert("请使用立体声文件，单声道文件无法有效分离");
                 status.classList.remove("show");
-                return;
+                return false;
             }
 
             const left = buffer.getChannelData(0);
@@ -377,6 +577,7 @@
             const vocalR = vocalBuffer.getChannelData(1);
             const accompL = accompBuffer.getChannelData(0);
             const accompR = accompBuffer.getChannelData(1);
+            const progressStep = Math.max(4096, Math.floor(length / 80));
 
             for (let i = 0; i < length; i++) {
                 const l = left[i];
@@ -390,9 +591,16 @@
 
                 accompL[i] = side * 1.5;
                 accompR[i] = -side * 1.5;
+
+                if (i % progressStep === 0) {
+                    setProcessingProgress(46 + Math.round((i / length) * 36));
+                    await nextFrame();
+                }
             }
 
+            setProcessingProgress(84);
             const vocalUrl = bufferToWaveUrl(vocalBuffer);
+            setProcessingProgress(92);
             const accompUrl = bufferToWaveUrl(accompBuffer);
 
             vocalAudio.src = vocalUrl;
@@ -403,6 +611,27 @@
 
             downloadVocal.onclick = () => downloadAudio(vocalUrl, originalName + "_vocal.wav");
             downloadAccomp.onclick = () => downloadAudio(accompUrl, originalName + "_accompaniment.wav");
+            return true;
+        }
+
+        function setProcessingProgress(value) {
+            const progress = Math.max(0, Math.min(100, Math.round(value)));
+            status.classList.remove("error");
+            status.classList.add("show");
+            statusText.textContent = processingText;
+            progressValue.textContent = progress + "%";
+            progressBar.style.width = progress + "%";
+            progressShell.setAttribute("aria-valuenow", progress);
+        }
+
+        function showProcessingError(message) {
+            status.classList.add("show", "error");
+            statusText.textContent = message;
+            progressValue.textContent = "";
+        }
+
+        function nextFrame() {
+            return new Promise((resolve) => requestAnimationFrame(resolve));
         }
 
         function bufferToWaveUrl(buffer) {
